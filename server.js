@@ -19,7 +19,7 @@ const legoData = require("./modules/legoSets"); //import
 
 const express = require("express"); // "require" the Express module
 const app = express(); // obtain the "app" object
-const HTTP_PORT = process.env.PORT || 7272; // assign a port
+const HTTP_PORT = process.env.PORT || 8080; // assign a port
 //we must ensure that the "sets" array has been successfully built within our "legoSets" module,
 //so before the server starts (ie: the app.listen() function is invoked),
 
@@ -91,10 +91,10 @@ app.get("*", (req, res) => {
 
 /*
 test:
-http://localhost:7272/
-http://localhost:7272/lego/sets
-http://localhost:7272/lego/sets/num-demo
-http://localhost:7272/lego/sets/theme-demo
+http://localhost:8080/
+http://localhost:8080/lego/sets
+http://localhost:8080/lego/sets/num-demo
+http://localhost:8080/lego/sets/theme-demo
 my note:
 When a function returns a Promise, we can use .then() to attach a callback that will be executed when the Promise successfully resolves.
 In initialize() function, for example, I've implemented it to return a Promise that resolves when the operation of filling the sets array is complete.
