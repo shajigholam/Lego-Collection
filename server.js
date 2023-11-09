@@ -1,12 +1,12 @@
 /********************************************************************************
- *  WEB322 – Assignment 03
+ *  WEB322 – Assignment 04
  *
  *  I declare that this assignment is my own work in accordance with Seneca's
  *  Academic Integrity Policy:
  *
  *  https://www.senecacollege.ca/about/policies/academic-integrity-policy.html
  *
- *  Name: Samaneh Hajigholam Student ID: 119751220 Date: Oct 22, 2023
+ *  Name: Samaneh Hajigholam Student ID: 119751220 Date: Nov 8, 2023
  *
  *  Published URL:
  * https://brainy-shawl-crow.cyclic.app/
@@ -24,6 +24,8 @@ const HTTP_PORT = process.env.PORT || 8080; // assign a port
 //so before the server starts (ie: the app.listen() function is invoked),
 
 app.use(express.static("public")); //to mark the "public" folder as "static"
+//This will tell our server that any file with the ".ejs" extension will use the EJS "engine" (template engine).
+app.set('view engine', 'ejs');
 
 legoData
   .initialize()
@@ -38,10 +40,10 @@ legoData
   });
 //get root route
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/home.html");
+  res.render("home");
 });
 app.get("/about", (req, res) => {
-  res.sendFile(__dirname + "/views/about.html");
+  res.render("about");
 });
 // Handle /lego/sets route
 app.get("/lego/sets", (req, res) => {
@@ -50,19 +52,25 @@ app.get("/lego/sets", (req, res) => {
     legoData
       .getSetByTheme(theme)
       .then((sets) => {
-        res.json(sets);
+        if (sets.length === 0) {
+          res.status(404).render("404", { message: "No sets found for the specified theme" });
+        } else {
+          // console.log("Sets by Theme:", sets);
+          res.render("sets", { sets: sets });
+        }
       })
       .catch((error) => {
-        res.status(404).send(error);
+        res.status(404).render("404", { message: "No sets found for the specified theme" });
       });
   } else {
     legoData
       .getAllSets()
       .then((sets) => {
-        res.json(sets);
+        // console.log("Sets:", sets);\
+        res.render("sets", {sets : sets});
       })
       .catch((error) => {
-        res.status(404).send(error);
+        res.status(404).render("404", { message: "No sets found for the specified theme" });
       });
   }
 });
@@ -74,33 +82,24 @@ app.get("/lego/sets/:setNum", (req, res) => {
     .getSetByNum(setNum)
     .then((set) => {
       if (set) {
-        res.json(set);
+        res.render("set", {set : set});
       } else {
-        res.status(404).send("Lego set not found.");
+        res.status(404).render("404", {message: "No set found for the specified set number"});
       }
     })
     .catch((error) => {
-      res.status(404).send(error);
+      res.status(404).render("404", { message: "No set found for the specified set number" });
     });
 });
 
 // Serve the 404 page
 app.get("*", (req, res) => {
-  res.status(404).sendFile(__dirname + "/views/404.html");
+  res.status(404).render("404", {message: "I'm sorry, we're unable to find what you're looking for"});
 });
-
 /*
 test:
 http://localhost:8080/
 http://localhost:8080/lego/sets
 http://localhost:8080/lego/sets/num-demo
 http://localhost:8080/lego/sets/theme-demo
-my note:
-When a function returns a Promise, we can use .then() to attach a callback that will be executed when the Promise successfully resolves.
-In initialize() function, for example, I've implemented it to return a Promise that resolves when the operation of filling the sets array is complete.
-This allows us to use .then() to perform actions after the data is ready.
----------------------------
-creating a web server using Express.js, app typically refers to an instance of the Express.js application. Express.js is a Node.js framework 
-that simplifies the process of building web applications and APIs.
-When you create an Express.js application, you often create it by invoking the express() function, which returns an app object.
 */

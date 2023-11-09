@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lego Collection</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("https://quotable.io/random")
+                .then(response => response.json())
+                .then(data => {
+                    // Update an element in the DOM with the "content" and "author"
+                    const quoteElement = document.getElementById("quote");
+                    quoteElement.innerHTML = `<blockquote>${data.content}</blockquote> - ${data.author}`;
+                })
+                .catch(error => console.error(error));
+        });
+    </script>
+  </head>
+  <body tabindex="-1" data-new-gr-c-s-check-loaded="14.1134.0" data-gr-ext-installed="">
+
+    <%- include('partials/navbar', {page: ''}) %>
+
+    <div class="container mx-auto p-4">
+
+        <div class="hero bg-base-200 rounded-lg p-6">
+          <div class="hero-content text-center ">
+            <div class="max-w-md">
+              <h1 class="text-5xl font-bold"><%= set.name %></h1>
+    
+              <p class="py-6">Below, you will find detailed information about the set: <%= set.name %></p>
+            </div>
+          </div>
+        </div>
+    
+        <br>
+    
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <img src="<%= set.img_url %>" alt="<%= set.name %>"class="avatar w-102 h-102 rounded-lg bg-transparent bg-no-repeat bg-cover">
+          </div>
+          <div class="prose">
+    
+           <p>
+            <span class="font-bold">Set Name: </span> <%= set.name %> <br>
+            <span class="font-bold">Year Released: </span> <%= set.year %> <br>
+            <span class="font-bold">Theme: </span> <%= set.theme %> <br>
+            <span class="font-bold">Number of Parts: </span> <%= set.num_parts %> <br><br>
+            <br>
+            <!-- Include the fetched quote here -->
+            <div id="quote"></div>
+            <br><br>
+            <a class="btn btn-primary btn-sm" href="#" onclick="history.back(); return false;">RETURN</a>
+           </p>
+    
+          </div>
+    
+        </div>
+    
+      </div>
+  </body>
+</html>
