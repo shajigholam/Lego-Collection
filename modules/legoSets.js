@@ -29,7 +29,7 @@ function initialize() {
         }
     });
 }
-initialize();
+// initialize();
 // function to get all sets
 function getAllSets() {
     return new Promise((resolve, reject) => {
