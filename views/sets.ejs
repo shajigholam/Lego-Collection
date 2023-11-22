@@ -46,7 +46,7 @@
                             <!-- Image -->
                             <td><img src="<%= set.img_url %>" alt="<%= set.name %>"class="avatar w-32 h-32 rounded-lg bg-transparent bg-no-repeat bg-cover"></td>
                             <!-- Name --><!-- Theme -->
-                            <td><%= set.name %> | <a href="/lego/sets?theme=<%= set.theme %>" class="btn mt-2 btn-xs"><%= set.theme %></a></td>
+                            <td><%= set.name %> | <a href="/lego/sets?theme=<%= set.Theme.name %>" class="btn mt-2 btn-xs"><%= set.Theme.name %></a></td>
                             <!-- Year --><!-- Num Parts -->
                             <td><span class="font-bold">Year: </span><%= set.year %> - <span class="font-bold">Parts:</span><%= set.num_parts %></td>
                             <!-- Details Link -->
