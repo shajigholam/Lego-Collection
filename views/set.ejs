@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -62,7 +61,9 @@
                     <div id="quote"></div>
                     <br><br>
                     <!-- Add an "Edit" button -->
+                    <% if (session.user) { %>
                     <a href="/lego/editSet/<%= set.set_num %>" class="btn btn-success">Edit Set</a>
+                    <% } %>
                     <a class="btn btn-primary" href="#" onclick="history.back(); return false;">RETURN</a>
           </p>
 

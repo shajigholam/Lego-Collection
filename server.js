@@ -1,12 +1,12 @@
 /********************************************************************************
- *  WEB322 – Assignment 05
+ *  WEB322 – Assignment 06
  *
  *  I declare that this assignment is my own work in accordance with Seneca's
  *  Academic Integrity Policy:
  *
  *  https://www.senecacollege.ca/about/policies/academic-integrity-policy.html
  *
- *  Name: Samaneh Hajigholam Student ID: 119751220 Date: Nov 22, 2023
+ *  Name: Samaneh Hajigholam Student ID: 119751220 Date: Dec 2, 2023
  *
  *  Published URL:
  * https://brainy-shawl-crow.cyclic.app/
@@ -16,20 +16,48 @@
 
 //This will ensure that the functions in legoSets.js will be available on the legoData object
 const legoData = require("./modules/legoSets"); //import
-
 const express = require("express"); // "require" the Express module
+const authData = require('./modules/auth-service');
+const clientSessions = require('client-sessions');
+
+// const mongoose = require('mongoose');
+// const Schema = mongoose.Schema;
 const app = express(); // obtain the "app" object
+
 const HTTP_PORT = process.env.PORT || 8080; // assign a port
+
 //we must ensure that the "sets" array has been successfully built within our "legoSets" module,
 //so before the server starts (ie: the app.listen() function is invoked),
-
 app.use(express.static("public")); //to mark the "public" folder as "static"
-app.use(express.urlencoded({ extended: true })); // Middleware to handle form data
 //This will tell our server that any file with the ".ejs" extension will use the EJS "engine" (template engine).
 app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: true })); // Middleware to handle form data
+
+app.use(
+  clientSessions({
+    cookieName: 'session', // this is the object name that will be added to 'req'
+    secret: 'o6LjQ5EVNC28ZgK64hDELM18ScpFQr', // this should be a long un-guessable string.
+    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+    activeDuration: 1000 * 60, // the session will be extended by this many ms each request (1 minute)
+  })
+);
+
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+//condition corrected
+function ensureLogin(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+}
 
 legoData
   .initialize()
+  .then(authData.initialize)
   .then(() => {
     // start the server on the port and output a confirmation ot the console
     app.listen(HTTP_PORT, () =>
@@ -94,7 +122,7 @@ app.get("/lego/sets/:setNum", (req, res) => {
 });
 
 // GET /lego/addSet route
-app.get("/lego/addSet", (req, res) => {
+app.get("/lego/addSet", ensureLogin, (req, res) => {
   legoData.getAllThemes()
     .then((themes) => {
       res.render("addSet", { themes: themes });
@@ -105,7 +133,7 @@ app.get("/lego/addSet", (req, res) => {
 });
 
 // POST /lego/addSet route
-app.post("/lego/addSet", (req, res) => {
+app.post("/lego/addSet", ensureLogin, (req, res) => {
   const setData = req.body;
   legoData.addSet(setData)
     .then(() => {
@@ -116,7 +144,7 @@ app.post("/lego/addSet", (req, res) => {
     });
 });
 // GET "/lego/editSet/:num"
-app.get("/lego/editSet/:num", (req, res) => {
+app.get("/lego/editSet/:num", ensureLogin, (req, res) => {
   const setNum = req.params.num;
 
   Promise.all([legoData.getSetByNum(setNum), legoData.getAllThemes()])
@@ -129,7 +157,7 @@ app.get("/lego/editSet/:num", (req, res) => {
 });
 
 // POST "/lego/editSet"
-app.post("/lego/editSet", (req, res) => {
+app.post("/lego/editSet", ensureLogin, (req, res) => {
   const setNum = req.body.set_num;
   const setData = {
     name: req.body.name,
@@ -150,7 +178,7 @@ app.post("/lego/editSet", (req, res) => {
 });
 
 // GET "/lego/deleteSet/:num"
-app.get("/lego/deleteSet/:num", (req, res) => {
+app.get("/lego/deleteSet/:num", ensureLogin, (req, res) => {
   const setNum = req.params.num;
 
   legoData
@@ -161,6 +189,49 @@ app.get("/lego/deleteSet/:num", (req, res) => {
     .catch((err) => {
       res.render("500", { message: `I'm sorry, but we have encountered the following error: ${err}` });
     });
+});
+
+app.get("/login", (req, res) => {
+  res.render("login", { errorMessage: null });
+});
+app.get("/register", (req, res) => {
+  res.render("register", { successMessage: null, errorMessage: null });
+});
+app.post("/register", (req, res) => {
+  const userData = req.body;
+
+  authData.registerUser(userData)
+    .then(() => {
+      res.render("register", { successMessage: "User created", errorMessage: null });
+    })
+    .catch((err) => {
+      res.render("register", { errorMessage: err, userName: userData.userName });
+    });
+});
+app.post("/login", (req, res) => {
+  const userData = req.body;
+  userData.userAgent = req.get('User-Agent');
+
+  authData.checkUser(userData)
+    .then((user) => {
+      req.session.user = {
+        userName: user.userName,
+        email: user.email,
+        loginHistory: user.loginHistory
+      }
+
+      res.redirect('/lego/sets');
+    })
+    .catch((err) => {
+      res.render("login", { errorMessage: err, userName: userData.userName });
+    });
+});
+app.get("/logout", (req, res) => {
+  req.session.reset();
+  res.redirect('/');
+});
+app.get("/userHistory", ensureLogin, (req, res) => {
+  res.render("userHistory");
 });
 
 // Serve the 404 page
