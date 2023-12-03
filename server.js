@@ -11,7 +11,7 @@
  *  Published URL:
  * https://brainy-shawl-crow.cyclic.app/
  ********************************************************************************/
-
+require('dotenv').config();
 //this file involves returning the data. (creating a "simple web server" that makes our data available)
 
 //This will ensure that the functions in legoSets.js will be available on the legoData object
