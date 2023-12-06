@@ -41,13 +41,16 @@ let User; // to be defined on new connection (see initialize)
 // initialize function
 function initialize() {
   return new Promise((resolve, reject) => {
+    console.log(process.env.MONGODB);
     let db = mongoose.createConnection(process.env.MONGODB);
 
     db.on('error', (err) => {
+      console.log(process.env.MONGODB);
       reject(err); // reject the promise with the provided error
     });
 
     db.once('open', () => {
+      console.log(process.env.MONGODB);
       User = db.model('users', userSchema);
       resolve();
     });
